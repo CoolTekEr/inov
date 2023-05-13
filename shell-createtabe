@@ -1,0 +1,23 @@
+#!/bin/bash
+Get the list of regions in Azure.
+
+regions=$(az account list-locations --all --output table | awk -F'|' '{print $2}')
+Create an empty table.
+
+table=()
+Iterate through the regions and get the list of SKUs and availability zones for each region.
+
+for region in $regions; do
+  # Get the list of SKUs for the region.
+  skus=$(az vm list-skus --location $region --all --output table | awk -F'|' '{print $2}')
+  # Get the list of availability zones for the region.
+  zones=$(az account list-locations --location $region --output table | awk -F'|' '{print $3}')
+  #Create a row for the region in the table.
+
+  table+=([$region $skus $zones])
+done
+# Print the table.
+printf "%s\n" "|---------|---------|-------|\n| sku         | region    | zone   |\n----------------------------\n"
+for row in "${table[@]}"; do
+  printf "| %s | %s | %s |\n" "${row[@]}"
+done
