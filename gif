@@ -32,3 +32,36 @@ else
     # Print user-friendly error message
     echo "Error: Request failed with response code $RESPONSE_CODE"
 fi
+@Entity
+@Table(name = "products")
+public class Product {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "name")
+    private String name;
+
+    // ... other properties and methods
+}
+@Repository
+public interface ProductRepository extends JpaRepository<Product, Long> {
+
+    List<Product> findByNameLike(String searchTerm);
+
+}
+
+@Service
+public class ProductService {
+
+    private final ProductRepository productRepository;
+
+    public ProductService(ProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
+
+    public List<Product> searchProducts(String searchTerm) {
+        return productRepository.findByNameLike("%" + searchTerm + "%");
+    }
+}
