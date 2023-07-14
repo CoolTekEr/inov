@@ -65,3 +65,32 @@ public class ProductService {
         return productRepository.findByNameLike("%" + searchTerm + "%");
     }
 }
+#!/bin/bash
+
+# Variables
+file_path="/path/to/local/file.txt"
+auth_token="YOUR_AUTH_TOKEN"
+endpoint="https://example.com/api/endpoint"
+
+# Check if the file exists
+if [ ! -f "$file_path" ]; then
+  echo "File not found: $file_path"
+  exit 1
+fi
+
+# Check if the auth token is provided
+if [ -z "$auth_token" ]; then
+  echo "Auth token is missing"
+  exit 1
+fi
+
+# Check if the endpoint is provided
+if [ -z "$endpoint" ]; then
+  echo "Endpoint is missing"
+  exit 1
+fi
+
+# Send the cURL request
+curl -X POST "$endpoint" \
+  -H "Authorization: Bearer $auth_token" \
+  -F "file=@$file_path"
