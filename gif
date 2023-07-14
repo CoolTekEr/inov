@@ -94,3 +94,50 @@ fi
 curl -X POST "$endpoint" \
   -H "Authorization: Bearer $auth_token" \
   -F "file=@$file_path"
+
+
+------
+YourCompositeKey compositeKey = new YourCompositeKey();
+compositeKey.setColumnA("valueA");
+compositeKey.setColumnB("valueB");
+compositeKey.setColumnC("valueC");
+
+YourEntity entity = new YourEntity();
+entity.setCompositeKey(compositeKey);
+// Set other properties of the entity
+
+yourEntityRepository.save(entity);
+
+=========
+
+@Embeddable
+public class YourCompositeKey implements Serializable {
+
+    @Column(name = "column_a")
+    private String columnA;
+
+    @Column(name = "column_b")
+    private String columnB;
+
+    @Column(name = "column_c")
+    private String columnC;
+
+    // Constructors, getters, setters, equals, and hashCode methods
+}
+===========
+@Entity
+public class YourEntity {
+
+    @EmbeddedId
+    private YourCompositeKey compositeKey;
+
+    // Other entity properties and methods
+
+    public YourCompositeKey getCompositeKey() {
+        return compositeKey;
+    }
+
+    public void setCompositeKey(YourCompositeKey compositeKey) {
+        this.compositeKey = compositeKey;
+    }
+}
