@@ -141,3 +141,211 @@ public class YourEntity {
         this.compositeKey = compositeKey;
     }
 }
+==================
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/tokens")
+public class TokenController {
+  
+  @Autowired
+  private TokenService tokenService;
+  
+  @PostMapping
+  public ResponseEntity<String> generateToken(@RequestBody UserCredentials userCredentials) {
+    // Validate the user credentials (you can implement your own logic)
+    boolean isValid = validateUserCredentials(userCredentials.getUsername(), userCredentials.getPassword());
+    
+    if (isValid) {
+      // Generate a token using the token service
+      String token = tokenService.generateToken(userCredentials.getUsername());
+      
+      return ResponseEntity.ok(token);
+    } else {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+  }
+  
+  private boolean validateUserCredentials(String username, String password) {
+    // Implement your own logic to validate the user credentials
+    // You can check against a database or any other authentication mechanism
+    
+    // For this example, we assume that the credentials are valid if the username and password are not empty
+    return username != null && !username.isEmpty() && password != null && !password.isEmpty();
+  }
+}
+
+============
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+@Service
+public class TokenService {
+  
+  private Map<String, String> tokens = new HashMap<>();
+  
+  public String generateToken(String username) {
+    // Generate a unique token using UUID
+    String token = UUID.randomUUID().toString();
+    
+    // Store the token in a map with the username as the key
+    tokens.put(username, token);
+    
+    return token;
+  }
+  
+  public boolean isValidToken(String username, String token) {
+    // Check if the provided token matches the stored token for the given username
+    String storedToken = tokens.get(username);
+    
+    return storedToken != null && storedToken.equals(token);
+  }
+}
+=====================
+public class UserCredentials {
+  
+  private String username;
+  private String password;
+  
+  // Add getters and setters
+  
+  public String getUsername() {
+    return username;
+  }
+  
+  public void setUsername(String username) {
+    this.username = username;
+  }
+  
+  public String getPassword() {
+    return password;
+  }
+  
+  public void setPassword(String password) {
+    this.password = password;
+  }
+}
+=====================
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+@Service
+public class TokenService {
+
+  private static final String SECRET_KEY = "your_secret_key"; // Replace with your own secret key
+  private static final long EXPIRATION_TIME = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+  private Map<String, String> tokens = new HashMap<>();
+
+  public String generateToken(String username) {
+    Date now = new Date();
+    Date expiration = new Date(now.getTime() + EXPIRATION_TIME);
+
+    String token = Jwts.builder()
+        .setClaims(createClaims(username))
+        .setIssuedAt(now)
+        .setExpiration(expiration)
+        .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+        .compact();
+
+    tokens.put(username, token);
+    return token;
+  }
+
+  public boolean isValidToken(String username, String token) {
+    if (!tokens.containsKey(username) || !tokens.get(username).equals(token)) {
+      return false;
+    }
+
+    try {
+      Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  private Claims createClaims(String username) {
+    Claims claims = Jwts.claims();
+    claims.put("username", username);
+    // Add any additional claims if needed
+    return claims;
+  }
+}
+======================
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+@Service
+public class TokenService {
+
+  private static final String SECRET_KEY = "your_secret_key"; // Replace with your own secret key
+  private static final long EXPIRATION_TIME = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+  private Map<String, String> tokens = new HashMap<>();
+
+  public String generateToken(String username) {
+    Date now = new Date();
+    Date expiration = new Date(now.getTime() + EXPIRATION_TIME);
+
+    String token = Jwts.builder()
+        .setClaims(createClaims(username))
+        .setIssuedAt(now)
+        .setExpiration(expiration)
+        .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+        .compact();
+
+    tokens.put(username, token);
+    return token;
+  }
+
+  public boolean isValidToken(String username, String token) {
+    if (!tokens.containsKey(username) || !tokens.get(username).equals(token)) {
+      return false;
+    }
+
+    try {
+      Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  public boolean validateToken(String token) {
+    try {
+      Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  private Claims createClaims(String username) {
+    Claims claims = Jwts.claims();
+    claims.put("username", username);
+    // Add any additional claims if needed
+    return claims;
+  }
+}
