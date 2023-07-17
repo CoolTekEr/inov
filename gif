@@ -349,3 +349,140 @@ public class TokenService {
     return claims;
   }
 }
+=================
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Fileshare client</title>
+</head>
+<body>
+<h1>Choose file to upload</h1>
+<input type="text" id="username" />
+<input type="password" id="password" />
+<input type="text" id="destinationPath" />
+
+<script>
+function chooseFile() {
+  var fileInput = document.getElementById("fileInput");
+  fileInput.click();
+}
+
+function sendCredentialsAndGetResponse(username, password, destinationPath) {
+  // Create a new XMLHttpRequest object.
+  var xhr = new XMLHttpRequest();
+
+  // Set the URL of the service endpoint.
+  xhr.open("POST", "https://example.com/endpoint-one");
+
+  // Set the request headers.
+  xhr.setRequestHeader("Content-Type", "application/json");
+
+  // Set the request body.
+  var data = JSON.stringify({
+    "username": username,
+    "password": password,
+  });
+
+  // Send the request.
+  xhr.send(data);
+
+  // Handle the response.
+  xhr.onload = function() {
+    if (xhr.status === 200) {
+      // The request was successful.
+      var response = JSON.parse(xhr.responseText);
+      console.log(response);
+    } else {
+      // The request failed.
+      console.log("Error: " + xhr.status);
+    }
+  };
+}
+
+function callAnotherFunction(str, destinationPath) {
+  // Create a new XMLHttpRequest object.
+  var xhr = new XMLHttpRequest();
+
+  // Set the URL of the service endpoint.
+  xhr.open("POST", "https://example.com/endpoint-two");
+
+  // Set the request headers.
+  xhr.setRequestHeader("str", str);
+  xhr.setRequestHeader("destinationPath", destinationPath);
+
+  // Send the request.
+  xhr.send();
+
+  // Handle the response.
+  xhr.onload = function() {
+    if (xhr.status === 200) {
+      // The request was successful.
+      var response = JSON.parse(xhr.responseText);
+      console.log(response);
+    } else {
+      // The request failed.
+      console.log("Error: " + xhr.status);
+    }
+  };
+}
+
+function handleResponse(response) {
+  if (response.type === "file") {
+    // The response is a file. Save the file to the destination path.
+    var file = new File(response.data, response.filename);
+    file.save(destinationPath);
+  } else if (response.type === "error") {
+    // The response is an error message. Display the error message to the user.
+    console.log(response.message);
+  } else {
+    // The response is a text message. Display the text message to the user.
+    console.log(response.message);
+  }
+}
+
+
+function callThirdApi(str2) {
+  // Create a new XMLHttpRequest object.
+  var xhr = new XMLHttpRequest();
+
+  // Set the URL of the service endpoint.
+  xhr.open("POST", "https://example.com/endpoint-three");
+
+  // Set the request headers.
+  xhr.setRequestHeader("str2", str2);
+
+  // Send the request.
+  xhr.send();
+
+  // Handle the response.
+  xhr.onload = function() {
+    if (xhr.status === 200) {
+      // The request was successful.
+      var response = JSON.parse(xhr.responseText);
+      handleResponse(response);
+    } else {
+      // The request failed.
+      console.log("Error: " + xhr.status);
+    }
+  };
+}
+
+function executeCurl() {
+
+var curlCommand = "curl -u " + document.getElementById("username").value + ":" + document.getElementById("password").value + " https://localhost:8080/";
+
+  var file = document.getElementById("fileInput").files[0];
+  var path = file.path;
+  var curlCommand = "curl -F file=@" + path + " http://localhost:8080/";
+  console.log(curlCommand);
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", curlCommand);
+  xhr.send();
+}
+</script>
+<input type="file" id="fileInput" />
+<button onclick="chooseFile()">Choose File</button>
+<button onclick="executeCurl()">Execute Curl</button>
+</body>
+</html>
