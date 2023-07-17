@@ -486,3 +486,82 @@ var curlCommand = "curl -u " + document.getElementById("username").value + ":" +
 <button onclick="executeCurl()">Execute Curl</button>
 </body>
 </html>
+===============
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Upload and Download</title>
+<style>
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-top: 50px;
+}
+
+label {
+  margin-bottom: 10px;
+  margin-top: 50px
+  margin-left: 50px
+  margin-right: 50px
+}
+
+input {
+  width: 25%;
+}
+</style>
+</head>
+<body>
+<h1>Upload and Download</h1>
+                           <div class="container">
+  <div>
+    <label for="username">Username:</label>
+    <input type="text" id="username" />
+  </div>
+  <div>
+    <label for="password">Password:</label>
+    <input type="password" id="password" />
+  </div>
+  <div>
+    <label for="destinationPath">Destination Path:</label>
+    <input type="text" id="destinationPath" />
+  </div>
+</div>
+<button onclick="upload()" msrgin>Upload</button>
+<button onclick="download()">Download</button>
+<script>
+function upload() {
+  // Get the username, password, and destination path.
+  var username = document.getElementById("username").value;
+  var password = document.getElementById("password").value;
+  var destinationPath = document.getElementById("destinationPath").value;
+
+  // Send the credentials to the service endpoint.
+  sendCredentialsAndGetResponse(username, password, destinationPath);
+}
+
+function download() {
+  // Get the string from the third API call.
+  var str2 = response.str2;
+
+  // Call the third API call.
+  callThirdApi(str2);
+}
+
+function handleResponse(response) {
+  if (response.type === "file") {
+    // The response is a file. Save the file to the destination path.
+    var file = new File(response.data, response.filename);
+    file.save(destinationPath);
+  } else if (response.type === "error") {
+    // The response is an error message. Display the error message to the user.
+    alert(response.message);
+  } else {
+    // The response is a text message. Display the text message to the user.
+    alert(response.message);
+  }
+}
+</script>
+</body>
+</html>
